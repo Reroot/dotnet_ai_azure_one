@@ -1,0 +1,225 @@
+1. dotnet new mvc
+2. dotnet add package Microsoft.ApplicationInsights.AspNetCore
+
+
+3. 02-add-telemetry-json.json
+// WE ARE ALSO LOGGING LOCAL USING THIS, using dev settings
+
+{
+  "Logging": {
+    "LogLevel": {
+      "Default": "Information",
+      "Microsoft": "Warning",
+      "Microsoft.Hosting.Lifetime": "Information"
+    }
+  },
+
+  "ApplicationInsights": { 
+      "InstrumentationKey": "da121695-0589-44d7-8de5-8045e79eeb19"
+  }
+}
+
+
+4. 02-add-telemetry-startup.cs
+
+// This method gets called by the runtime. Use this method to add services to the container.
+public void ConfigureServices(IServiceCollection services)
+{
+    // The following line enables Application Insights telemetry collection.
+    services.AddApplicationInsightsTelemetry();
+
+    // This code adds other services for your application.
+    services.AddControllersWithViews();
+    // In older .net core it will be services.AddMvc();
+}
+
+5. 03-add-client-side-layouts.cshtml
+
+@Html.Raw(JavaScriptSnippet.FullScript)
+
+6.03-add-client-side-viewimports.cshtml
+
+@inject Microsoft.ApplicationInsights.AspNetCore.JavaScriptSnippet JavaScriptSnippet
+
+7. 04-add-button-demo-api.cs // need this so we have an endpoint to call
+
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
+using demo.Models;
+using System.Net.Http;
+
+namespace demo.Controllers
+{
+    [Route("api/[controller]")]
+    [ApiController]
+    public class DemoController : ControllerBase
+    {
+        private readonly string url = "<function_url>";
+
+        public DemoController()
+        {}
+
+        [HttpGet]
+        public async Task<ActionResult<string>> Get()
+        {
+            HttpClient client = new HttpClient();
+            var response = await client.GetAsync(url);
+            var text = await response.Content.ReadAsStringAsync();
+
+            return new OkObjectResult(text);
+        }
+
+    }
+}
+
+5. 04-add-button-demo-api.html
+
+<div class="alert alert-warning" role="alert">
+    Remember to disable ADBLOCK!
+</div>
+<div style="margin-bottom: 20px;">
+    <button id="button" class="btn btn-primary">Call Functions</button>
+</div>
+<div class="alert alert-primary" role="alert" id="message"style="display: none;"></div>
+<div class="alert alert-danger" role="alert" id="error"style="display: none;"></div>
+<script src="https://ajax.aspnetcdn.com/ajax/jQuery/jquery-3.4.1.min.js"></script>
+<script>
+    var url = "/api/Demo";
+    $( "#button" ).click(function() {
+        $( "#message" ).text("Loading...");
+        $.get(url)
+            .done(function(data) {
+                $( "#message" ).text(data).show();
+            })
+            .fail(function(error) {
+                $( "#error" ).text(JSON.stringify(error)).show();
+            })
+    });
+</script>
+
+6. 05-functions-code.cs
+
+#r "Newtonsoft.Json"
+
+using System.Net;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Primitives;
+using Newtonsoft.Json;
+
+public static async Task<IActionResult> Run(HttpRequest req, ILogger log)
+{
+    log.LogInformation("C# HTTP trigger function processed a request.");
+
+    return new OkObjectResult("Hello Azure!");
+}
+
+7. 05-functions-code.json
+
+{
+    "bindings": [
+      {
+        "authLevel": "function",
+        "name": "req",
+        "type": "httpTrigger",
+        "direction": "in",
+        "methods": [
+          "get",
+          "post"
+        ]
+      },
+      {
+        "name": "$return",
+        "type": "http",
+        "direction": "out"
+      }
+    ]
+  }
+
+8. 06-functions-queue-code.cs
+
+#r "Newtonsoft.Json"
+
+using System.Net;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Primitives;
+using Newtonsoft.Json;
+
+public static async Task<IActionResult> Run(
+    HttpRequest req, 
+    IAsyncCollector<string> queueItem,
+    Stream blob,
+    ILogger log)
+{
+    log.LogInformation("C# HTTP trigger function processed a request.");
+
+    var message = "Hello Azure!";
+    await queueItem.AddAsync(message);
+    StreamWriter sr = new StreamWriter(blob);
+    await sr.WriteAsync(message);
+    sr.Flush();
+
+    return new OkObjectResult(message);
+}
+
+9. 06-functions-queue-code.json
+
+{
+  "bindings": [
+    {
+      "authLevel": "function",
+      "name": "req",
+      "type": "httpTrigger",
+      "direction": "in",
+      "methods": [
+        "get",
+        "post"
+      ]
+    },
+    {
+      "name": "$return",
+      "type": "http",
+      "direction": "out"
+    },
+    {
+      "type": "queue",
+      "name": "queueItem",
+      "queueName": "demoqueue",
+      "connection": "AzureWebJobsStorage",
+      "direction": "out"
+    },
+    {
+      "name": "blob",
+      "type": "blob",
+      "path": "democontainer/{rand-guid}.txt",
+      "connection": "AzureWebJobsStorage",
+      "direction": "out"
+    }
+  ]
+
+10. 
+
+<script type="text/javascript">
+var sdkInstance="appInsightsSDK";window[sdkInstance]="appInsights";var aiName=window[sdkInstance],aisdk=window[aiName]||function(e){function n(e){t[e]=function(){var n=arguments;t.queue.push(function(){t[e].apply(t,n)})}}var t={config:e};t.initialize=!0;var i=document,a=window;setTimeout(function(){var n=i.createElement("script");n.src=e.url||"https://az416426.vo.msecnd.net/scripts/b/ai.2.min.js",i.getElementsByTagName("script")[0].parentNode.appendChild(n)});try{t.cookie=i.cookie}catch(e){}t.queue=[],t.version=2;for(var r=["Event","PageView","Exception","Trace","DependencyData","Metric","PageViewPerformance"];r.length;)n("track"+r.pop());n("startTrackPage"),n("stopTrackPage");var s="Track"+r[0];if(n("start"+s),n("stop"+s),n("addTelemetryInitializer"),n("setAuthenticatedUserContext"),n("clearAuthenticatedUserContext"),n("flush"),t.SeverityLevel={Verbose:0,Information:1,Warning:2,Error:3,Critical:4},!(!0===e.disableExceptionTracking||e.extensionConfig&&e.extensionConfig.ApplicationInsightsAnalytics&&!0===e.extensionConfig.ApplicationInsightsAnalytics.disableExceptionTracking)){n("_"+(r="onerror"));var o=a[r];a[r]=function(e,n,i,a,s){var c=o&&o(e,n,i,a,s);return!0!==c&&t["_"+r]({message:e,url:n,lineNumber:i,columnNumber:a,error:s}),c},e.autoExceptionInstrumented=!0}return t}(
+{
+  instrumentationKey:"INSTRUMENTATION_KEY"
+}
+);window[aiName]=aisdk,aisdk.queue&&0===aisdk.queue.length&&aisdk.trackPageView({});
+</script>
+
+11. client-side-npm.js
+
+import { ApplicationInsights } from '@microsoft/applicationinsights-web'
+
+const appInsights = new ApplicationInsights({ config: {
+  instrumentationKey: 'YOUR_INSTRUMENTATION_KEY_GOES_HERE'
+  /* ...Other Configuration Options... */
+} });
+appInsights.loadAppInsights();
+appInsights.trackPageView();
+
+
