@@ -1,28 +1,28 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\adavtyam\\Desktop\\dotnet_ai_test_one\\dotnet_ai_test_one.csproj": {}
+    "C:\\Users\\tripl\\OneDrive\\Desktop\\az1\\dotnet_ai_azure_one\\dotnet_ai_test_one.csproj": {}
   },
   "projects": {
-    "C:\\Users\\adavtyam\\Desktop\\dotnet_ai_test_one\\dotnet_ai_test_one.csproj": {
+    "C:\\Users\\tripl\\OneDrive\\Desktop\\az1\\dotnet_ai_azure_one\\dotnet_ai_test_one.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\adavtyam\\Desktop\\dotnet_ai_test_one\\dotnet_ai_test_one.csproj",
+        "projectUniqueName": "C:\\Users\\tripl\\OneDrive\\Desktop\\az1\\dotnet_ai_azure_one\\dotnet_ai_test_one.csproj",
         "projectName": "dotnet_ai_test_one",
-        "projectPath": "C:\\Users\\adavtyam\\Desktop\\dotnet_ai_test_one\\dotnet_ai_test_one.csproj",
-        "packagesPath": "C:\\Users\\adavtyam\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\adavtyam\\Desktop\\dotnet_ai_test_one\\obj\\",
+        "projectPath": "C:\\Users\\tripl\\OneDrive\\Desktop\\az1\\dotnet_ai_azure_one\\dotnet_ai_test_one.csproj",
+        "packagesPath": "C:\\Users\\tripl\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\tripl\\OneDrive\\Desktop\\az1\\dotnet_ai_azure_one\\obj\\",
         "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
+        ],
         "configFilePaths": [
-          "C:\\Users\\adavtyam\\AppData\\Roaming\\NuGet\\NuGet.Config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+          "C:\\Users\\tripl\\AppData\\Roaming\\NuGet\\NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "netcoreapp3.1"
         ],
         "sources": {
-          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
-          "https://ado.cld.prd.ust.doj.gov/EBMA/_packaging/DXTR_Nuget_Feed/nuget/v3/index.json": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
@@ -38,6 +38,12 @@
       },
       "frameworks": {
         "netcoreapp3.1": {
+          "dependencies": {
+            "Microsoft.ApplicationInsights.AspNetCore": {
+              "target": "Package",
+              "version": "[2.15.0, )"
+            }
+          },
           "imports": [
             "net461",
             "net462",
